@@ -1,0 +1,28 @@
+# Secrets - never bake API keys or database URLs into the image.
+# Pass them at runtime instead: docker run --env-file .env ...
+.env
+.env.*
+!.env.example
+
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Git and editor files
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+
+# Local tool settings
+.claude/
