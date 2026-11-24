@@ -585,6 +585,13 @@ def weather_agent(state: TravelState):
             forecast_mcp_search(city)
         )
 
+        # The MCP adapter returns a failed tool call as text instead of
+        # raising, so check for it and use the fallback below.
+        for tool_result in (weather_data, forecast_data):
+            text = _tool_text(tool_result)
+            if text.lstrip().startswith("Error executing tool"):
+                raise RuntimeError(_clip(text, 300))
+
         weather_results = f"""
 Current Weather:
 {_clip(_tool_text(weather_data), 600)}

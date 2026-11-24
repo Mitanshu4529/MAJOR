@@ -45,8 +45,8 @@ def _request_json(
         return response.json()
 
     except requests.RequestException as exc:
-        details = ""
-
+        # Never echo str(exc) or the request URL: both contain the
+        # appid query parameter, i.e. the OpenWeather API key.
         failed_response = getattr(
             exc,
             "response",
@@ -54,15 +54,25 @@ def _request_json(
         )
 
         if failed_response is not None:
-            details = (
-                f" Response: "
-                f"{failed_response.text[:500]}"
-            )
+            try:
+                message = failed_response.json().get(
+                    "message",
+                    "",
+                )
+            except ValueError:
+                message = ""
+
+            raise RuntimeError(
+                f"OpenWeather request failed "
+                f"(HTTP {failed_response.status_code})"
+                + (f": {message}" if message else ".")
+            ) from None
 
         raise RuntimeError(
             f"OpenWeather request failed: "
-            f"{exc}.{details}"
-        ) from exc
+            f"{type(exc).__name__} "
+            f"(service unreachable or timed out)."
+        ) from None
 
 
 @mcp.tool()
